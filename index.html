@@ -3,134 +3,235 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Text to Audio</title>
+<title>Narrate — Text to Audio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@300;400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- Hidden file inputs -->
-<input type="file" id="fileInput" accept=".txt" style="display:none" onchange="loadTextFile(event)">
-<input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="loadPdfFile(event)">
+<input type="file" id="fileInput"  accept=".txt"  style="display:none" onchange="loadTextFile(event)">
+<input type="file" id="pdfInput"   accept=".pdf"  style="display:none" onchange="loadPdfFile(event)">
 
-<div class="topbar">
-  <span class="app-name">Text to Audio</span>
-  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" id="themeBtn">☾</button>
-</div>
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar" id="sidebar">
 
-<main class="center" id="dropZone">
+  <div class="sidebar-top">
+    <div class="brand">
+      <div class="brand-icon">◈</div>
+      <span class="brand-name">Narrate</span>
+    </div>
+    <button class="icon-btn sidebar-close" onclick="toggleSidebar()" title="Close sidebar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
 
-  <!-- Main input card -->
-  <div class="input-box" id="inputBox">
+  <!-- Tabs -->
+  <div class="sidebar-tabs">
+    <button class="stab active" data-tab="history" onclick="switchTab('history')">History</button>
+    <button class="stab" data-tab="voices"  onclick="switchTab('voices')">Voices</button>
+    <button class="stab" data-tab="settings" onclick="switchTab('settings')">Settings</button>
+  </div>
 
-    <textarea id="textInput"
-      placeholder="Text to audio..."
-      rows="1"
-      oninput="autoResize(this); updateCount()">
-    </textarea>
+  <!-- History Tab -->
+  <div class="tab-panel active" id="tab-history">
+    <div class="panel-header">
+      <span>Recent Conversions</span>
+      <button class="text-btn danger" onclick="clearHistory()">Clear</button>
+    </div>
+    <div class="history-list" id="historyList">
+      <div class="empty-state">
+        <div class="empty-icon">◎</div>
+        <p>No conversions yet.<br>Convert some text to get started.</p>
+      </div>
+    </div>
+  </div>
 
-    <div class="warn-bar" id="warnBar">
-      ⚠ Long text will be split into chunks automatically
+  <!-- Voices Tab -->
+  <div class="tab-panel" id="tab-voices">
+    <div class="panel-header"><span>Available Voices</span></div>
+    <div class="voice-list" id="voiceList">
+      <div class="empty-state"><p>Loading voices...</p></div>
+    </div>
+  </div>
+
+  <!-- Settings Tab -->
+  <div class="tab-panel" id="tab-settings">
+    <div class="panel-header"><span>Preferences</span></div>
+    <div class="settings-list">
+      <div class="setting-item">
+        <label class="setting-label">Theme</label>
+        <div class="toggle-row">
+          <button class="toggle-opt active" id="darkBtn"  onclick="setTheme('dark')">Dark</button>
+          <button class="toggle-opt"        id="lightBtn" onclick="setTheme('light')">Light</button>
+        </div>
+      </div>
+      <div class="setting-item">
+        <label class="setting-label">Auto-play after convert</label>
+        <label class="switch">
+          <input type="checkbox" id="autoPlayToggle" checked>
+          <span class="switch-track"></span>
+        </label>
+      </div>
+      <div class="setting-item">
+        <label class="setting-label">Show welcome quote</label>
+        <label class="switch">
+          <input type="checkbox" id="quoteToggle" checked>
+          <span class="switch-track"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+</aside>
+
+<!-- Sidebar backdrop -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main" id="main">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <button class="icon-btn" onclick="toggleSidebar()" title="Open sidebar">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <span class="topbar-title">Narrate</span>
+    <div class="topbar-right">
+      <div class="status-chip" id="statusChip">
+        <div class="chip-dot" id="chipDot"></div>
+        <span id="chipText">Ready</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Content area -->
+  <div class="content" id="content">
+
+    <!-- Welcome quote -->
+    <div class="welcome" id="welcomeArea">
+      <div class="quote-mark">"</div>
+      <p class="quote-text" id="quoteText"></p>
+      <span class="quote-author" id="quoteAuthor"></span>
     </div>
 
-    <!-- Settings row: voice + sliders -->
-    <div class="settings-row">
-
-      <div class="setting-group">
-        <label class="setting-label">Voice</label>
-        <select id="voiceSelect" class="setting-select">
-          <option value="">Loading...</option>
-        </select>
-      </div>
-
-      <div class="setting-group">
-        <label class="setting-label">Speed <span id="rateVal">-15%</span></label>
-        <input type="range" id="rateSlider" class="slider" min="-50" max="50" value="-15"
-          oninput="document.getElementById('rateVal').textContent = this.value + '%'">
-      </div>
-
-      <div class="setting-group">
-        <label class="setting-label">Pitch <span id="pitchVal">-22Hz</span></label>
-        <input type="range" id="pitchSlider" class="slider" min="-50" max="50" value="-22"
-          oninput="document.getElementById('pitchVal').textContent = this.value + 'Hz'">
-      </div>
-
-    </div>
-
-    <!-- Bottom action row -->
-    <div class="input-footer">
-      <div class="btn-row">
-
-        <!-- + dropdown trigger -->
-        <div class="dropdown-wrap">
-          <button class="pill-btn icon-only" onclick="toggleDropdown()" title="Load file" id="plusBtn">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <!-- Audio output card -->
+    <div class="output-card" id="outputCard">
+      <div class="output-header">
+        <span class="output-label">Output</span>
+        <div class="output-actions">
+          <button class="icon-btn sm" onclick="shareAudio()" id="shareBtn" title="Share">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
           </button>
-          <div class="dropdown" id="dropdown">
-            <button class="drop-item" onclick="document.getElementById('fileInput').click(); closeDropdown()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              Open .txt file
+          <button class="icon-btn sm" onclick="downloadAudio()" title="Download">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <audio id="audioPlayer" controls></audio>
+      <div class="audio-meta" id="audioMeta"></div>
+    </div>
+
+  </div>
+
+  <!-- Bottom input dock -->
+  <div class="dock">
+
+    <!-- Voice + controls row -->
+    <div class="dock-controls">
+      <select id="voiceSelect" class="voice-select">
+        <option value="">Loading voices...</option>
+      </select>
+      <div class="slider-group">
+        <label>Speed <span class="slider-val" id="rateVal">−15%</span></label>
+        <input type="range" class="slider" id="rateSlider" min="-50" max="50" value="-15"
+          oninput="document.getElementById('rateVal').textContent = (this.value > 0 ? '+' : '') + this.value + '%'">
+      </div>
+      <div class="slider-group">
+        <label>Pitch <span class="slider-val" id="pitchVal">−22Hz</span></label>
+        <input type="range" class="slider" id="pitchSlider" min="-50" max="50" value="-22"
+          oninput="document.getElementById('pitchVal').textContent = (this.value > 0 ? '+' : '') + this.value + 'Hz'">
+      </div>
+    </div>
+
+    <!-- Input box -->
+    <div class="input-card" id="inputCard">
+      <textarea id="textInput"
+        placeholder="Type or paste your text here..."
+        rows="1"
+        oninput="autoResize(this); updateCount()">
+      </textarea>
+
+      <div class="warn-bar" id="warnBar">
+        ⚠ Long text will be split into chunks automatically
+      </div>
+
+      <div class="input-footer">
+        <div class="left-btns">
+
+          <div class="dropdown-wrap">
+            <button class="pill-btn icon-only" onclick="toggleDropdown()" title="Load file">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
-            <button class="drop-item" onclick="document.getElementById('pdfInput').click(); closeDropdown()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/></svg>
-              Open .pdf file
-            </button>
+            <div class="dropdown" id="dropdown">
+              <button class="drop-item" onclick="document.getElementById('fileInput').click(); closeDropdown()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Open .txt
+              </button>
+              <button class="drop-item" onclick="document.getElementById('pdfInput').click(); closeDropdown()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/></svg>
+                Open .pdf
+              </button>
+              <button class="drop-item" onclick="pasteFromClipboard(); closeDropdown()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                Paste clipboard
+              </button>
+            </div>
           </div>
+
+          <button class="pill-btn icon-only" onclick="copyText()" title="Copy text">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+
+          <button class="pill-btn icon-only" onclick="clearText()" title="Clear">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          </button>
+
         </div>
 
-        <button class="pill-btn" onclick="convertAudio()" id="convertBtn">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Convert
-        </button>
-
-        <button class="pill-btn" onclick="downloadAudio()" id="downloadBtn" disabled>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download
-        </button>
-
-        <button class="pill-btn icon-only" onclick="copyText()" title="Copy text" id="copyBtn">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        </button>
-
-        <span class="char-pill" id="charCount">0</span>
+        <div class="right-btns">
+          <span class="char-pill" id="charCount">0</span>
+          <button class="convert-btn" onclick="convertAudio()" id="convertBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Convert
+          </button>
+        </div>
 
       </div>
     </div>
-  </div>
 
-  <!-- Progress bar -->
-  <div class="progress-wrap" id="progressWrap">
-    <div class="progress-bar" id="progressBar"></div>
-    <span class="progress-label" id="progressLabel">Generating...</span>
-  </div>
-
-  <!-- Status -->
-  <div class="status-row">
-    <div class="dot" id="dot"></div>
-    <span id="status"></span>
-  </div>
-
-  <!-- Audio player -->
-  <div class="player-wrap" id="playerWrap">
-    <audio id="audioPlayer" controls></audio>
-  </div>
-
-  <!-- History -->
-  <div class="history-section" id="historySection">
-    <div class="history-header" onclick="toggleHistory()">
-      <span>Recent</span>
-      <svg id="historyChevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    <!-- Progress -->
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <span class="progress-label" id="progressLabel">Generating...</span>
     </div>
-    <div class="history-list" id="historyList"></div>
+
   </div>
 
-</main>
+</div>
 
 <!-- Drag overlay -->
 <div class="drag-overlay" id="dragOverlay">
-  <div class="drag-msg">Drop your file here</div>
+  <div class="drag-box">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <p>Drop .txt or .pdf here</p>
+  </div>
 </div>
+
+<!-- Share toast -->
+<div class="toast" id="toast"></div>
 
 <script src="script.js"></script>
 </body>
