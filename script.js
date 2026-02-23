@@ -13,12 +13,28 @@ const charCount   = document.getElementById("charCount");
 
 function autoResize(el) {
   el.style.height = "auto";
-  el.style.height = el.scrollHeight + "px";
+  el.style.height = Math.min(el.scrollHeight, 280) + "px";
 }
 
 function updateCount() {
   const len = textInput.value.length;
-  charCount.textContent = len > 0 ? `${len} chars` : "";
+  charCount.textContent = len > 0 ? `${len}` : "···";
+}
+
+// Load .txt file into textarea
+function loadFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    textInput.value = e.target.result;
+    autoResize(textInput);
+    updateCount();
+    setStatus(`Loaded: ${file.name}`, "success");
+  };
+  reader.readAsText(file);
+  // reset so same file can be picked again
+  event.target.value = "";
 }
 
 function setStatus(msg, state = "idle") {

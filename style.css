@@ -1,7 +1,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background: #0a0a0a;
+  background: #111111;
   color: #e0e0e0;
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
@@ -13,39 +13,20 @@ body {
 
 .center {
   width: 100%;
-  max-width: 620px;
+  max-width: 640px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
-.title {
-  font-size: 22px;
-  font-weight: 400;
-  color: #fff;
-  letter-spacing: -0.3px;
-}
-
-.hint {
-  font-size: 13px;
-  color: #555;
-  font-weight: 300;
-  margin-top: -8px;
-}
-
-/* Main input box */
+/* Main floating input card */
 .input-box {
   width: 100%;
-  background: #161616;
-  border: 1px solid #2a2a2a;
-  border-radius: 18px;
-  padding: 16px 18px 12px;
-  transition: border-color 0.2s;
-}
-
-.input-box:focus-within {
-  border-color: #3a3a3a;
+  background: #1c1c1c;
+  border-radius: 22px;
+  padding: 18px 18px 14px 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
 }
 
 textarea {
@@ -53,65 +34,80 @@ textarea {
   background: transparent;
   border: none;
   outline: none;
-  color: #e0e0e0;
+  color: #d0d0d0;
   font-family: 'Inter', sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 300;
   line-height: 1.6;
   resize: none;
-  min-height: 28px;
-  max-height: 260px;
+  min-height: 30px;
+  max-height: 280px;
   overflow-y: auto;
+  caret-color: #aaa;
 }
 
-textarea::placeholder { color: #3a3a3a; }
+textarea::placeholder {
+  color: #4a4a4a;
+}
 
+/* Footer with buttons */
 .input-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 12px;
-}
-
-.char-count {
-  font-size: 11px;
-  color: #333;
+  margin-top: 14px;
 }
 
 .btn-row {
   display: flex;
+  align-items: center;
   gap: 8px;
 }
 
+/* Pill buttons — matches reference exactly */
 .pill-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 14px;
-  border-radius: 20px;
-  border: 1px solid #2e2e2e;
-  background: #1e1e1e;
-  color: #ccc;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: none;
+  background: #2a2a2a;
+  color: #aaaaaa;
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 400;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.pill-btn svg {
+  flex-shrink: 0;
+  opacity: 0.7;
 }
 
 .pill-btn:hover:not(:disabled) {
-  background: #252525;
-  border-color: #3a3a3a;
-  color: #fff;
+  background: #333333;
+  color: #dddddd;
+}
+
+.pill-btn:hover:not(:disabled) svg {
+  opacity: 1;
 }
 
 .pill-btn:disabled {
-  opacity: 0.3;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
-.pill-btn.ghost {
-  background: transparent;
+/* Icon-only pill (+ and ···) */
+.pill-btn.icon-only {
+  padding: 8px 12px;
+}
+
+.pill-btn.muted {
+  font-size: 12px;
+  color: #555;
+  letter-spacing: 0.5px;
 }
 
 /* Status */
@@ -120,17 +116,19 @@ textarea::placeholder { color: #3a3a3a; }
   align-items: center;
   gap: 7px;
   font-size: 12px;
-  color: #444;
-  min-height: 18px;
+  color: #555;
+  min-height: 16px;
+  align-self: flex-start;
+  padding-left: 4px;
 }
 
 .dot {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #333;
-  transition: background 0.3s;
+  background: transparent;
   flex-shrink: 0;
+  transition: background 0.3s;
 }
 
 .dot.loading { background: #facc15; animation: blink 0.7s infinite; }
@@ -139,7 +137,7 @@ textarea::placeholder { color: #3a3a3a; }
 
 @keyframes blink {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.2; }
+  50%       { opacity: 0.2; }
 }
 
 /* Audio player */
@@ -148,11 +146,13 @@ textarea::placeholder { color: #3a3a3a; }
   display: none;
 }
 
-.player-wrap.visible { display: block; }
+.player-wrap.visible {
+  display: block;
+}
 
 audio {
   width: 100%;
   height: 36px;
-  border-radius: 10px;
+  border-radius: 12px;
   accent-color: #4ade80;
 }

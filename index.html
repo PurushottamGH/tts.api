@@ -12,28 +12,40 @@
 
 <main class="center">
 
-  <h1 class="title">Text to Audio</h1>
-  <p class="hint" id="hint">Type anything and convert it to speech.</p>
-
   <div class="input-box" id="inputBox">
-    <textarea id="textInput" placeholder="Ask anything..." rows="1" oninput="autoResize(this); updateCount()"></textarea>
+    <textarea id="textInput" placeholder="Text to audio..." rows="1" oninput="autoResize(this); updateCount()"></textarea>
 
     <div class="input-footer">
-      <span class="char-count" id="charCount"></span>
       <div class="btn-row">
+
+        <!-- + file upload button -->
+        <button class="pill-btn icon-only" onclick="document.getElementById('fileInput').click()" title="Open text file">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <input type="file" id="fileInput" accept=".txt" style="display:none" onchange="loadFile(event)">
+
+        <!-- Convert -->
         <button class="pill-btn" onclick="convertAudio()" id="convertBtn">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           Convert
         </button>
-        <button class="pill-btn ghost" onclick="downloadAudio()" id="downloadBtn" disabled>
+
+        <!-- Download -->
+        <button class="pill-btn" onclick="downloadAudio()" id="downloadBtn" disabled>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Download
         </button>
+
+        <!-- More / char count -->
+        <button class="pill-btn icon-only muted" title="Character count" id="charCountBtn">
+          <span id="charCount">···</span>
+        </button>
+
       </div>
     </div>
   </div>
 
-  <div class="status-row" id="statusRow">
+  <div class="status-row">
     <div class="dot" id="dot"></div>
     <span id="status"></span>
   </div>
