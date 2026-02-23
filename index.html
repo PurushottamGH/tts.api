@@ -2,10 +2,11 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Narrate — Text to Audio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,193 +14,246 @@
 <input type="file" id="fileInput" accept=".txt" style="display:none" onchange="loadTextFile(event)">
 <input type="file" id="pdfInput"  accept=".pdf" style="display:none" onchange="loadPdfFile(event)">
 
-<div class="shell">
+<!-- Workspace greeting -->
+<div class="workspace-bar" id="workspaceBar">
+  <span class="workspace-icon">⬡</span>
+  <span id="workspaceGreet">Good morning, Purushottam</span>
+  <button class="ws-close" onclick="document.getElementById('workspaceBar').style.display='none'">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+</div>
 
-  <!-- ═══ LEFT SIDEBAR ═══ -->
-  <aside class="sidebar">
+<div class="app-wrap" id="appWrap">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar" id="sidebar">
 
     <div class="sidebar-brand">
-      <div class="brand-icon">◈</div>
-      <span class="brand-name">Narrate</span>
-    </div>
-
-    <div class="sidebar-tabs">
-      <button class="stab active" data-tab="history"  onclick="switchTab('history')">History</button>
-      <button class="stab"        data-tab="voices"   onclick="switchTab('voices')">Voices</button>
-      <button class="stab"        data-tab="settings" onclick="switchTab('settings')">Settings</button>
-    </div>
-
-    <!-- History -->
-    <div class="tab-panel active" id="tab-history">
-      <div class="panel-top">
-        <span class="panel-label">Recent</span>
-        <button class="ghost-btn" onclick="clearHistory()">Clear</button>
+      <div class="brand-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
       </div>
-      <div class="history-list" id="historyList"></div>
+      <span class="brand-name">Narrate</span>
+      <button class="sidebar-toggle-btn" id="sidebarCloseBtn" onclick="closeSidebar()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
     </div>
 
-    <!-- Voices -->
-    <div class="tab-panel" id="tab-voices">
-      <div class="panel-top"><span class="panel-label">Voices</span></div>
-      <div class="voice-list" id="voiceList"></div>
+    <div class="sidebar-nav">
+      <button class="nav-item active" data-tab="history"  onclick="switchTab('history')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        History
+      </button>
+      <button class="nav-item" data-tab="voices"   onclick="switchTab('voices')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+        Voices
+      </button>
+      <button class="nav-item" data-tab="analytics" onclick="switchTab('analytics')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analytics
+      </button>
+      <button class="nav-item" data-tab="settings"  onclick="switchTab('settings')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+        Settings
+      </button>
     </div>
 
-    <!-- Settings -->
-    <div class="tab-panel" id="tab-settings">
-      <div class="panel-top"><span class="panel-label">Preferences</span></div>
-      <div class="settings-items">
-        <div class="setting-row">
-          <span class="setting-label">Theme</span>
-          <div class="seg-ctrl">
-            <button class="seg active" id="darkBtn"  onclick="setTheme('dark')">Dark</button>
-            <button class="seg"        id="lightBtn" onclick="setTheme('light')">Light</button>
+    <div class="sidebar-content">
+
+      <!-- History -->
+      <div class="tab-panel active" id="tab-history">
+        <div class="panel-header">
+          <span class="panel-label">Recent</span>
+          <button class="text-action danger" onclick="clearHistory()">Clear all</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </div>
+
+      <!-- Voices -->
+      <div class="tab-panel" id="tab-voices">
+        <div class="panel-header"><span class="panel-label">Available Voices</span></div>
+        <div class="voice-list" id="voiceList"></div>
+      </div>
+
+      <!-- Analytics -->
+      <div class="tab-panel" id="tab-analytics">
+        <div class="panel-header"><span class="panel-label">Usage Analytics</span></div>
+        <div class="analytics-body" id="analyticsBody"></div>
+      </div>
+
+      <!-- Settings -->
+      <div class="tab-panel" id="tab-settings">
+        <div class="panel-header"><span class="panel-label">Preferences</span></div>
+        <div class="settings-body">
+          <div class="setting-item">
+            <span>Theme</span>
+            <div class="seg-group">
+              <button class="seg active" id="darkBtn" onclick="setTheme('dark')">Dark</button>
+              <button class="seg" id="lightBtn" onclick="setTheme('light')">Light</button>
+            </div>
+          </div>
+          <div class="setting-item">
+            <span>Auto-play</span>
+            <label class="toggle"><input type="checkbox" id="autoPlayToggle" checked><span class="tog-track"></span></label>
+          </div>
+          <div class="setting-item">
+            <span>Welcome quote</span>
+            <label class="toggle"><input type="checkbox" id="quoteToggle" checked onchange="toggleQuote(this.checked)"><span class="tog-track"></span></label>
+          </div>
+          <div class="setting-item">
+            <span>Your name</span>
+            <input class="name-input" id="nameInput" placeholder="Purushottam" value="Purushottam" oninput="updateGreeting()">
           </div>
         </div>
-        <div class="setting-row">
-          <span class="setting-label">Auto-play</span>
-          <label class="switch"><input type="checkbox" id="autoPlayToggle" checked><span class="track"></span></label>
-        </div>
-        <div class="setting-row">
-          <span class="setting-label">Show quote</span>
-          <label class="switch"><input type="checkbox" id="quoteToggle" checked onchange="toggleQuote(this.checked)"><span class="track"></span></label>
-        </div>
       </div>
-    </div>
 
+    </div>
   </aside>
 
-  <!-- ═══ CENTER ═══ -->
-  <div class="center-col">
+  <!-- Sidebar overlay for mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- ═══ MAIN ═══ -->
+  <div class="main" id="main">
 
     <!-- Topbar -->
     <div class="topbar">
-      <div class="topbar-left">
+      <button class="topbar-btn" id="sidebarOpenBtn" onclick="openSidebar()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+
+      <div class="topbar-center">
         <div class="project-pill">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
           Text to Audio
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
+
       <div class="topbar-right">
         <div class="status-chip" id="statusChip">
           <div class="chip-dot" id="chipDot"></div>
           <span id="chipText">Ready</span>
         </div>
+        <button class="topbar-btn" onclick="downloadAudio()" id="dlBtn" title="Download" style="display:none">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+        <button class="topbar-btn" onclick="shareAudio()" id="shareBtn" title="Share" style="display:none">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
       </div>
     </div>
 
-    <!-- Content area -->
+    <!-- Content -->
     <div class="content" id="content">
 
-      <!-- Welcome -->
       <div class="welcome" id="welcomeArea">
-        <div class="quote-glyph">"</div>
+        <div class="quote-mark">"</div>
         <p class="quote-text" id="quoteText"></p>
         <span class="quote-author" id="quoteAuthor"></span>
       </div>
 
-      <!-- Output -->
       <div class="output-card" id="outputCard">
-        <div class="output-top">
-          <span class="output-label">Output</span>
-          <div class="output-actions">
-            <button class="icon-btn" onclick="shareAudio()" title="Share link">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            </button>
-            <button class="icon-btn" onclick="downloadAudio()" title="Download">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            </button>
-          </div>
+        <div class="output-header">
+          <div class="output-meta" id="audioMeta"></div>
+          <div class="output-version-badge" id="versionBadge">v2 Neural</div>
+        </div>
+        <div class="waveform-wrap">
+          <canvas id="waveCanvas" height="48"></canvas>
         </div>
         <audio id="audioPlayer" controls></audio>
-        <div class="audio-meta" id="audioMeta"></div>
       </div>
 
     </div>
 
-    <!-- Bottom input dock -->
+    <!-- Dock -->
     <div class="dock">
 
-      <!-- Controls row -->
-      <div class="controls-row">
-        <select id="voiceSelect" class="voice-select">
-          <option value="">Loading voices...</option>
-        </select>
-        <div class="slider-pair">
-          <div class="slider-grp">
-            <span class="slider-label">Speed <em id="rateVal">−15%</em></span>
-            <input type="range" class="slider" id="rateSlider" min="-50" max="50" value="-15"
-              oninput="document.getElementById('rateVal').textContent=(this.value>0?'+':'')+this.value+'%'">
+      <div class="dock-controls">
+        <div class="voice-row">
+          <select id="voiceSelect" class="voice-select"></select>
+          <div class="version-toggle">
+            <button class="ver-btn" id="v1btn" onclick="setQuality('v1')" title="v1 Standard">v1</button>
+            <button class="ver-btn active" id="v2btn" onclick="setQuality('v2')" title="v2 Neural HD">v2</button>
           </div>
-          <div class="slider-grp">
-            <span class="slider-label">Pitch <em id="pitchVal">−22Hz</em></span>
-            <input type="range" class="slider" id="pitchSlider" min="-50" max="50" value="-22"
+        </div>
+        <div class="sliders-row">
+          <div class="sldr-grp">
+            <div class="sldr-label">Speed <span class="sldr-val" id="rateVal">−10%</span></div>
+            <input type="range" class="sldr" id="rateSlider" min="-50" max="50" value="-10"
+              oninput="document.getElementById('rateVal').textContent=(this.value>0?'+':this.value==0?'':'')+this.value+'%'">
+          </div>
+          <div class="sldr-grp">
+            <div class="sldr-label">Pitch <span class="sldr-val" id="pitchVal">−5Hz</span></div>
+            <input type="range" class="sldr" id="pitchSlider" min="-50" max="50" value="-5"
               oninput="document.getElementById('pitchVal').textContent=(this.value>0?'+':'')+this.value+'Hz'">
           </div>
         </div>
       </div>
 
-      <!-- Input box -->
-      <div class="input-box" id="inputBox">
-        <textarea id="textInput" placeholder="Type or paste your text here..." rows="1"
-          oninput="autoResize(this); updateCount()"></textarea>
+      <div class="input-card">
+        <textarea id="textInput" placeholder="Type or paste your text here..."
+          rows="1" oninput="autoResize(this); updateCount()"></textarea>
 
-        <div class="warn-bar" id="warnBar">⚠ Long text will be split into chunks automatically</div>
+        <div class="warn-banner" id="warnBar">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Long text will be split into chunks automatically
+        </div>
 
-        <div class="input-row">
-          <div class="input-left">
+        <div class="input-footer">
+          <div class="footer-left">
 
             <div class="dropdown-wrap">
-              <button class="pill" onclick="toggleDropdown()" title="Load file">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <button class="action-pill" onclick="toggleDropdown()" title="Load file">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               </button>
               <div class="dropdown" id="dropdown">
                 <button class="drop-item" onclick="document.getElementById('fileInput').click(); closeDropdown()">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Open .txt
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  Open .txt file
                 </button>
                 <button class="drop-item" onclick="document.getElementById('pdfInput').click(); closeDropdown()">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/></svg>Open .pdf
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/></svg>
+                  Open .pdf file
                 </button>
                 <button class="drop-item" onclick="pasteFromClipboard(); closeDropdown()">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>Paste clipboard
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+                  Paste clipboard
                 </button>
               </div>
             </div>
 
-            <button class="pill" onclick="copyText()" title="Copy">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <button class="action-pill" onclick="copyText()" title="Copy text">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             </button>
 
-            <button class="pill" onclick="clearText()" title="Clear">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            <button class="action-pill" onclick="clearText()" title="Clear">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
             </button>
 
-            <span class="char-badge" id="charCount">0</span>
+            <span class="char-count" id="charCount">0</span>
           </div>
 
           <button class="convert-btn" onclick="convertAudio()" id="convertBtn">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             Convert
           </button>
         </div>
       </div>
 
-      <!-- Progress -->
-      <div class="progress-row" id="progressWrap">
+      <div class="progress-bar-wrap" id="progressWrap">
         <div class="progress-track"><div class="progress-fill"></div></div>
-        <span class="progress-label">Generating audio...</span>
+        <span class="progress-lbl" id="progressLbl">Generating audio...</span>
       </div>
 
     </div>
   </div>
-
 </div>
 
 <!-- Drag overlay -->
 <div class="drag-overlay" id="dragOverlay">
   <div class="drag-inner">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-    <p>Drop .txt or .pdf</p>
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <p>Drop .txt or .pdf file</p>
   </div>
 </div>
 
