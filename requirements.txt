@@ -2,3 +2,5 @@ fastapi
 uvicorn[standard]
 edge-tts
 pydantic
+pypdf
+python-multipart
