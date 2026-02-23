@@ -3,50 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Text to Audio Studio</title>
+<title>Text to Audio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="noise"></div>
+<main class="center">
 
-<main class="container">
-  <header>
-    <div class="logo-mark">◈</div>
-    <h1>Audio<span class="accent">Studio</span></h1>
-    <p class="subtitle">Edge TTS · British Neural Voice</p>
-  </header>
+  <h1 class="title">Text to Audio</h1>
+  <p class="hint" id="hint">Type anything and convert it to speech.</p>
 
-  <div class="card">
-    <div class="card-inner">
-      <label class="field-label">NARRATION TEXT</label>
-      <textarea id="textInput" placeholder="Type or paste your text here...&#10;&#10;The voice will speak naturally with adjusted pitch and rate."></textarea>
-      <div class="char-count"><span id="charCount">0</span> characters</div>
+  <div class="input-box" id="inputBox">
+    <textarea id="textInput" placeholder="Ask anything..." rows="1" oninput="autoResize(this); updateCount()"></textarea>
 
-      <div class="actions">
-        <button class="btn btn-convert" onclick="convertAudio()" id="convertBtn">
-          <span class="btn-icon">▶</span>
-          <span class="btn-label">Convert</span>
+    <div class="input-footer">
+      <span class="char-count" id="charCount"></span>
+      <div class="btn-row">
+        <button class="pill-btn" onclick="convertAudio()" id="convertBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Convert
         </button>
-        <button class="btn btn-download" onclick="downloadAudio()" id="downloadBtn" disabled>
-          <span class="btn-icon">↓</span>
-          <span class="btn-label">Download</span>
+        <button class="pill-btn ghost" onclick="downloadAudio()" id="downloadBtn" disabled>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
         </button>
-      </div>
-
-      <div class="status-bar" id="statusBar">
-        <div class="status-dot" id="statusDot"></div>
-        <span id="status">Ready</span>
-      </div>
-
-      <div class="player-wrap" id="playerWrap">
-        <label class="field-label">PREVIEW</label>
-        <audio id="audioPlayer" controls></audio>
       </div>
     </div>
   </div>
+
+  <div class="status-row" id="statusRow">
+    <div class="dot" id="dot"></div>
+    <span id="status"></span>
+  </div>
+
+  <div class="player-wrap" id="playerWrap">
+    <audio id="audioPlayer" controls></audio>
+  </div>
+
 </main>
 
 <script src="script.js"></script>
